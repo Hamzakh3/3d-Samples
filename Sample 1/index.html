@@ -30,6 +30,10 @@
         <option value="part2">Part 2</option>
       </select>
       <input type="color" id="colorPicker" />
+      <label>
+        <input type="checkbox" id="lightingToggle" />
+        Neutral Viewer Mode
+      </label>
     </div>
     <!-- 
     <script type="importmap">
@@ -86,29 +90,17 @@
           }
         );
 
-        // Lights
-
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        backLight.position.set(-10, 5, -10);
-        scene.add(backLight);
-        // backLight.position.set(0, 2, -10);
-
-        // BETTER — ADD THIS
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
-        hemiLight.position.set(0, 20, 0);
-        scene.add(hemiLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        dirLight.position.set(10, 10, 10);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        // const light = new THREE.DirectionalLight(0xffffff, 1);
-        // light.position.set(5, 5, 5);
-        // scene.add(light);
-
-        // const ambient = new THREE.AmbientLight(0x404040);
+        // const ambient = new THREE.AmbientLight(0xffffff, 1.5);
         // scene.add(ambient);
+
+        // --------------------
+        // ✅ Renderer Tone Mapping
+        renderer.toneMapping = THREE.LinearToneMapping;
+        renderer.toneMappingExposure = 2; // No overexposure boost
+
+        // ✅ Lights
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+        scene.add(hemiLight);
 
         // Controls
         controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -125,15 +117,19 @@
         // loader.load("LivingIntent_24sw_3DModeler_v1_glTF.glb",
         //   (gltf) => {
         loader.load(
-          "https://di7qwrmamuqj1.cloudfront.net/Test-model.glb",
+          "[YOUR FILE NAME].glb",
           (gltf) => {
             model = gltf.scene;
 
             scene.add(model); // Add first, so bounding box is accurate
 
             model.traverse((child) => {
-              if (child.isMesh) {
+              if (child.isMesh && child.material.isMeshStandardMaterial) {
+              
                 child.geometry.computeVertexNormals(); // Recalculates lighting normals
+                child.material.roughness = 1; // very matte
+                child.material.metalness = 0; // no metal/gloss
+                child.material.envMapIntensity = 1; // kill reflection
               }
             });
 
@@ -174,33 +170,6 @@
           }
         );
 
-        // ---------------------------------------- Old COde
-        // loader.load('/ImageToStl.com_epl+21.glb', (gltf) => {
-        // loader.load(
-        //   "Test.glb",
-        //   (gltf) => {
-        //     model = gltf.scene;
-        //     model.scale.set(0.2, 0.2, 0.2); // Adjust as needed
-        //     model.position.set(0, 0, 0);
-        //     scene.add(model);
-        //     console.log("Model loaded:", model);
-        //     scene.add(new THREE.GridHelper(5, 10));
-        //     scene.add(new THREE.AxesHelper(1));
-
-        //     model.traverse(child => {
-        //       console.log("Child name:", child.name);
-        //       console.log("Child type0:", child.type);
-        //       console.log("Child scale:", child.scale);
-
-        //     });
-
-        //   },
-        //   undefined,
-        //   (error) => {
-        //     console.error("Error loading model:", error);
-        //   }
-        // );
-
         window.addEventListener("resize", onWindowResize);
       }
 
@@ -231,6 +200,10 @@
           const partName = document.getElementById("partSelector").value;
           changePartColor(partName, event.target.value);
         });
+
+     
+
+     
     </script>
   </body>
 </html>
