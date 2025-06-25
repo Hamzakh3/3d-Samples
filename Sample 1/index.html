@@ -45,6 +45,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 
     <script>
       // import * as THREE from 'three';
@@ -112,13 +113,19 @@
         // Controls
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+        // DRACOLoader
+        const dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.setDecoderPath(
+          "https://www.gstatic.com/draco/versioned/decoders/1.5.6/"
+        );
         // Load model
         const loader = new THREE.GLTFLoader();
+        loader.setDRACOLoader(dracoLoader);
         // ---------------------------------------- New Code
         // loader.load("LivingIntent_24sw_3DModeler_v1_glTF.glb",
         //   (gltf) => {
         loader.load(
-          "https://drve.google.com/file/d/11DnVMZ2sMKbdsYpw30Bvr9J7hWglJY2T/view",
+          "https://di7qwrmamuqj1.cloudfront.net/Test-model.glb",
           (gltf) => {
             model = gltf.scene;
 
@@ -157,7 +164,11 @@
             // scene.add(new THREE.GridHelper(10, 10));
             // scene.add(new THREE.AxesHelper(5));
           },
-          undefined,
+          (xhr) => {
+            const progress = (xhr.loaded / xhr.total) * 100;
+            console.log(`Model loading: ${progress.toFixed(2)}%`);
+          },
+
           (error) => {
             console.error("Error loading model:", error);
           }
